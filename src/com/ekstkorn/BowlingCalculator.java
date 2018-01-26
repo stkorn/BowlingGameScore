@@ -25,7 +25,7 @@ public class BowlingCalculator {
         }
 
         int score = bowlGame.calculateScore(seq);
-
+        bowlGame.displayScorebyFrame();
         System.out.println("\n\nTotal Score = " + score);
     }
 

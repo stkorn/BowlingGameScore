@@ -1,5 +1,5 @@
 # BowlingGameScore
-Bowling score calculator
+Bowling frameScore calculator
 
 ::: How to play :::
 

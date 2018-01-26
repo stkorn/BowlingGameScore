@@ -15,7 +15,6 @@ public class BowlGame {
 
     private List<Frame> frameList;
     private List<Integer> bonusList;
-    private int roll;
     private int currentFrame;
 
 
@@ -32,6 +31,7 @@ public class BowlGame {
     public int calculateScore(String sequence) {
         char[] seq = sequence.toCharArray();
         int totalScore = 0;
+        boolean isLastFrame = false;
 
         for (int rolling = 0; rolling < seq.length && currentFrame < ALL_FRAME; rolling++) {
 
@@ -41,64 +41,84 @@ public class BowlGame {
 
             //Last frame
             if (currentFrame == ALL_FRAME - 1) {
-                frame.setLastFrame(true);
+                isLastFrame = true;
             }
 
-            if (seq[rolling] == 'X' || seq[rolling] == 'x') { //Strike
-                rollingPoint = ALL_PIN;
-                frame.setBonusRoll(2);
-
-                if (frame.isLastFrame()) {
-                    frame.setMaxPlayBall(3);
-                    if (frame.addScore(rollingPoint)) {
-                        currentFrame++;
-                    }
-                } else {
-
-                    frame.setScore(rollingPoint);
-                    bonusList.add(currentFrame);
-                    currentFrame++;
-
-                }
-            } else if (seq[rolling] == '/') { //Spare
-                rollingPoint = ALL_PIN - frameList.get(currentFrame).getScore();
-                frame.setBonusRoll(1);
-
-                if (frame.isLastFrame()) {
-                    frame.setMaxPlayBall(4);
-                    if (frame.addScore(rollingPoint)) {
-                        currentFrame++;
-                    }
-                } else {
-
-                    frame.setScore(ALL_PIN);
-                    bonusList.add(currentFrame);
-                    currentFrame++;
-
-                }
-            } else if (seq[rolling] == '-') { //Miss ball
-                rollingPoint = 0;
-
-                if (frame.addScore(rollingPoint)) {
-                    currentFrame++;
-                }
+            if (seq[rolling] == 'X' || seq[rolling] == 'x') {
+                rollingPoint = rollStrikeScore(frame, isLastFrame);
+            } else if (seq[rolling] == '/') {
+                rollingPoint = rollSpareScore(frame, isLastFrame);
+            } else if (seq[rolling] == '-') {
+                rollingPoint = rollMiss(frame);
             } else {
-                //Normal case
-                rollingPoint = Character.getNumericValue(seq[rolling]);
-                if (frame.addScore(rollingPoint)) {
-                    currentFrame++;
-                }
+                rollingPoint = rollNormalScore(frame, seq[rolling]);
             }
 
-
-            totalScore += rollingPoint; //score by roll
-            totalScore += addBonus(rollingPoint, calBonusFrame); //score by bonus
+            totalScore = sumScore(totalScore, rollingPoint, calBonusFrame);
 
         }
 
-        displayScorebyFrame();
         return totalScore;
 
+    }
+
+    private int rollMiss(Frame frame) {
+        int rollingPoint;
+        rollingPoint = 0;
+
+        if (frame.addScore(rollingPoint)) {
+            currentFrame++;
+        }
+        return rollingPoint;
+    }
+
+    private int rollNormalScore(Frame frame, char roll) {
+        int rollingPoint;
+        rollingPoint = Character.getNumericValue(roll);
+        if (frame.addScore(rollingPoint)) {
+            currentFrame++;
+        }
+        return rollingPoint;
+    }
+
+    private int rollSpareScore(Frame frame, boolean isLastFrame) {
+        int rollingPoint;
+        rollingPoint = ALL_PIN - frameList.get(currentFrame).getFrameScore();
+        frame.setBonusRoll(1);
+
+        if (isLastFrame) {
+            frame.setMaxPlayBall(4);
+            if (frame.addScore(rollingPoint)) {
+                currentFrame++;
+            }
+        } else {
+
+            frame.setFrameScore(ALL_PIN);
+            bonusList.add(currentFrame);
+            currentFrame++;
+
+        }
+        return rollingPoint;
+    }
+
+    private int rollStrikeScore(Frame frame, boolean isLastFrame) {
+        int rollingPoint;
+        rollingPoint = ALL_PIN;
+        frame.setBonusRoll(2);
+
+        if (isLastFrame) {
+            frame.setMaxPlayBall(3);
+            if (frame.addScore(rollingPoint)) {
+                currentFrame++;
+            }
+        } else {
+
+            frame.setFrameScore(rollingPoint);
+            bonusList.add(currentFrame);
+            currentFrame++;
+
+        }
+        return rollingPoint;
     }
 
     private int addBonus(int point, int currentFrame) {
@@ -122,7 +142,13 @@ public class BowlGame {
         return totalBonusPoint;
     }
 
-    private void displayScorebyFrame() {
+    private int sumScore(int totalScore, int rollingPoint, int calBonusFrame) {
+        totalScore += rollingPoint; //score by roll
+        totalScore += addBonus(rollingPoint, calBonusFrame); //score by bonus
+        return totalScore;
+    }
+
+    public void displayScorebyFrame() {
         System.out.print("FRAME >\t");
         for (int i = 1; i <= ALL_FRAME; i++) {
             System.out.print(i + "\t");
@@ -132,7 +158,7 @@ public class BowlGame {
 
         int sumScore = 0;
         for (int j = 0; j < frameList.size(); j++) {
-            sumScore += frameList.get(j).getScore();
+            sumScore += frameList.get(j).getFrameScore();
             System.out.print(sumScore + "\t");
         }
     }
