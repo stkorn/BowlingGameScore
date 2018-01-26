@@ -3,6 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/BowlingScore.iml" filepath="$PROJECT_DIR$/BowlingScore.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/BowlingScore_main.iml" filepath="$PROJECT_DIR$/.idea/modules/BowlingScore_main.iml" group="BowlingScore" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/BowlingScore_test.iml" filepath="$PROJECT_DIR$/.idea/modules/BowlingScore_test.iml" group="BowlingScore" />
     </modules>
   </component>
 </project>
